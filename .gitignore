@@ -1,0 +1,50 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.pnpm-debug.log*
+
+# Logs
+logs
+*.log
+log/
+debug.log
+
+# dotenv
+.env
+.env.* 
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+
+# Build output
+dist/
+build/
+public/build/
+tmp/
+temp/
+
+# React
+*.cache
+.cache/
+.eslintcache
+
+# Testing
+coverage/
+jest-coverage/
+cypress/videos/
+cypress/screenshots/
+
+# MongoDB (if storing local DB dumps or files)
+dump/
+*.mongo
+
+# Optional: Ignore backend uploads folder (e.g., for file uploads)
+uploads/
