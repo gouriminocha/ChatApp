@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useLocation } from 'react-router-dom'
 import axios from '../config/axios'
+import { initializeSocket, receiveMessage, sendMessage } from '../config/socket'
+import { UserContext } from '../context/user.context.jsx'
 
 const Project = () => {
   const location = useLocation()
@@ -10,6 +12,7 @@ const Project = () => {
   const [message, setMessage] = useState('')
   const [selectedUserId, setSelectedUserId] = useState(new Set())
   const [project, setProject] = useState(location.state.project);
+  const {user} = useContext(UserContext)
 
  const [users, setUsers] = useState([])
 
@@ -30,10 +33,20 @@ const Project = () => {
     console.log(location.state);
 
   useEffect(() => {
+
+    initializeSocket(project._id)
+
+    receiveMessage('project-message', data=>{
+        console.log(data);
+    })
+
     axios.get(`/projects/get-project/${location.state.project._id}`).then(res=>{
           console.log(res.data.project)
         setProject(res.data.project)
     })
+
+
+
    axios.get('/users/all').then(res=>{
     setUsers(res.data.users)
    }).catch(err=>{
@@ -41,6 +54,15 @@ const Project = () => {
    })
   }, [])
   
+
+  function send(){
+    sendMessage('project-message',{
+        message,
+        sender: user._id
+    })
+
+    setMessage("")
+  }
 
   function addCollaborators() {
   axios.put("/projects/add-user",{
@@ -83,13 +105,16 @@ const Project = () => {
           </div>
           <div className="inputField w-full flex">
             <input
+            value= {message}
+            onChange={(e)=> setMessage(e.target.value)}
               className='p-2 px-4 outline-none bg-white flex-grow'
               type='text'
               placeholder='Enter message'
-              value={message}
-              onChange={e => setMessage(e.target.value)}
+              
             />
-            <button className='px-5 cursor-pointer bg-slate-950 text-white'>
+            <button
+            onClick={send}
+             className='px-5 cursor-pointer bg-slate-950 text-white'>
               <i className="ri-send-plane-fill"></i>
             </button>
           </div>
