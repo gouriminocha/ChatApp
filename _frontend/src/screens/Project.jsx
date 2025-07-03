@@ -33,7 +33,7 @@ const Project = () => {
     console.log(location.state);
 
   useEffect(() => {
-
+    //  console.log("Initializing socket with projectId:", project._id);
     initializeSocket(project._id)
 
     receiveMessage('project-message', data=>{

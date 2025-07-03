@@ -52,15 +52,19 @@ io.use(async(socket, next) =>{
 //then whenever a new user comes, then it made connection to the server with the help of socket.io
 io.on('connection',socket =>{
 
+    socket.roomId =socket.project._id.toString()
+
     console.log('a user connected');
 
-    socket.join(socket.project._id);    // when to connect an authenticated user to server, we want to connect it to a particukar project
+    
+
+    socket.join(socket.roomId);    // when to connect an authenticated user to server, we want to connect it to a particukar project
 
     socket.on('project-message', data=>{
 
         console.log(data)
 
-        socket.broadcast.to(socket.project._id).email('project-message',data)
+        io.to(socket.roomId).emit('project-message',data)
     })
 
     socket.on('event',data=>{/* */});

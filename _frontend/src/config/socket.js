@@ -12,12 +12,12 @@ let socketInstance = null; //web socket connection between client and server
 
 
 export const initializeSocket = (projectId) =>{
-    socketInstance = socket(import.meta.env.VITE_API_URL, {
-        auth:{
+     socketInstance = socket(import.meta.env.VITE_API_URL, {
+        auth: {
             token: localStorage.getItem('token')
         },
-        query:{
-            projectId           //to connect in ROOM with this projectId
+        query: {
+            projectId
         }
     });
 
@@ -31,7 +31,7 @@ export const receiveMessage = (eventName, cb) =>{  //connection to recieve data
 
 
 export const sendMessage = (eventName, data) =>{  //connection to send data
-    socketInstance.on(eventName, data);
+    socketInstance.emit(eventName, data);
 }
 
 
