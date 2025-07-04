@@ -146,6 +146,26 @@ const Project = () => {
         messageBox.current.scrollTop = messageBox.current.scrollHeight
     }
 
+ function WriteAiMessage(message) {
+
+        const messageObject = JSON.parse(message)
+
+        return (
+            <div
+                className='overflow-auto bg-slate-950 text-white rounded-sm p-2'
+            >
+                <Markdown
+                    children={messageObject.text}
+                    options={{
+                        overrides: {
+                            code: SyntaxHighlightedCode,
+                        },
+                    }}
+                />
+            </div>)
+    }
+
+
   return (
     <main className='h-screen w-screen flex'>
       <section className='left relative flex flex-col h-screen min-w-96  bg-gray-300'>
@@ -163,25 +183,15 @@ const Project = () => {
         <div className="conversation-area pt-14 pb-10 flex-grow flex flex-col h-full relative">
           
         <div
-                        ref={messageBox}
+                          ref={messageBox}
                         className="message-box p-1 flex-grow flex flex-col gap-1 overflow-auto max-h-full scrollbar-hide">
                         {messages.map((msg, index) => (
                             <div key={index} className={`${msg.sender._id === 'ai' ? 'max-w-80' : 'max-w-52'} ${msg.sender._id == user._id.toString() && 'ml-auto'}  message flex flex-col p-2 bg-slate-50 w-fit rounded-md`}>
                                 <small className='opacity-65 text-xs'>{msg.sender.email}</small>
                                 <div className='text-sm'>
                                     {msg.sender._id === 'ai' ?
-
-                                    <div className='overflow-auto bg-slate-950 text-white rounded-sm p-2'>
-                                        <Markdown 
-                                        children={msg.message}
-                                        options={{
-                                            overrides:{
-                                                code: SyntaxHighlightedCode,
-                                            },
-                                        }}
-                                        />
-                                        </div>
-                                        : msg.message }
+                                        WriteAiMessage(msg.message)
+                                        : <p>{msg.message}</p>}
                                 </div>
                             </div>
                         ))}
