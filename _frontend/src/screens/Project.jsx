@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom'
 import axios from '../config/axios'
 import { initializeSocket, receiveMessage, sendMessage } from '../config/socket'
 import { UserContext } from '../context/user.context.jsx'
+import Markdown from 'markdown-to-jsx'
+
 
 const Project = () => {
   const location = useLocation()
@@ -84,10 +86,23 @@ function appendIncomingMessage(messageObject){
     const messageBox = document.querySelector('.message-box')
     const message = document.createElement('div')
     message.classList.add('message', 'max-w-56', 'flex','flex-col','p-2','bg-slate-50','w-fit' ,'rounded-md')
+   
+    //check whether the incoming message is from AI
+    //convert markdown to jsx
+    if(messageObject.sender._id === 'ai'){
+
+        const markDown = (<Markdown>(messageObject.message)</Markdown>)
+        message.innerHTML=`
+        <small class = 'opacity-65 text-xs'>${messageObject.sender.email}</small>
+        <p class='text-sm>${markDown}</p>
+        `
+
+    }else{
+   
     message.innerHTML=`
     <small class='opacity-65 text-xs'>${messageObject.sender.email}</small>
     <p class='text-sm'>${messageObject.message}</p>`
-
+    }
     messageBox.appendChild(message)
     scrollToBottom();
 }

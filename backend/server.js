@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 import  jwt  from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import projectModel from './models/project.model.js'
+import { generateResult } from './services/ai.service.js';
 
 const port = process.env.PORT || 3000;
 
@@ -60,11 +61,29 @@ io.on('connection',socket =>{
 
     socket.join(socket.roomId);    // when to connect an authenticated user to server, we want to connect it to a particukar project
 
-    socket.on('project-message', data=>{
+    socket.on('project-message', async data=>{
+        //check whether this message is for AI
+        const message = data.message;
+       
+        const aiIsPresentInMessage = message.includes('@ai');
+        if(aiIsPresentInMessage){
+            const prompt = message.replace('@ai', '');
 
-        
+            const result = await generateResult(prompt);
 
-        socket.broadcast.to(socket.roomId).emit('project-message',data)
+            io.to(socket.roomId).emit('project-message', { // so that the reply will be shown to each user in that room
+                message: result,
+                sender:{
+                    _id:'ai',
+                    email:'AI'
+                }
+            })
+            return;
+        }
+
+        socket.broadcast.to(socket.roomId).emit('project-message',{
+
+        })
     })
 
     socket.on('disconnect',()=>{
