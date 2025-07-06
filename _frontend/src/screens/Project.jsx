@@ -44,7 +44,7 @@ const Project = () => {
   const [openFiles, setOpenFiles] = useState([])  //to open multiple files 
  const [users, setUsers] = useState([])
 const [webContainer, setWebContainer] = useState(null)
-
+const [iframeUrl, setIframeUrl] = useState(null)
 
     const handleUserClick = (id) => {
         setSelectedUserId(prevSelectedUserId => {
@@ -337,10 +337,10 @@ const [webContainer, setWebContainer] = useState(null)
 
                                     // setRunProcess(tempRunProcess)
 
-                                    // webContainer.on('server-ready', (port, url) => {
-                                    //     console.log(port, url)
-                                    //     setIframeUrl(url)
-                                    // })
+                                    webContainer.on('server-ready', (port, url) => {
+                                        console.log(port, url)
+                                        setIframeUrl(url)
+                                    })
 
                                 }}
                                 className='p-2 px-4 bg-slate-300 text-white'
@@ -391,7 +391,9 @@ const [webContainer, setWebContainer] = useState(null)
 
               </div>
             
-
+                 {iframeUrl && webContainer &&
+                 <iframe src={iframeUrl} className='w-1/2 h-full'></iframe>
+                  }       
             </section>
 
       {/* Modal for adding collaborators */}
