@@ -94,7 +94,7 @@ const [webContainer, setWebContainer] = useState(null)
     }
 
     receiveMessage('project-message', data=>{
-      
+      console.log(data);
         const message = JSON.parse(data.message)
 
          console.log(message);
@@ -288,7 +288,7 @@ const [webContainer, setWebContainer] = useState(null)
                  }
                 </div>
               </div>
-              {currentFile && (
+             
               <div className="code-editor flex flex-col flex-grow h-full ">
                <div className="top flex justify-between w-full">
                <div className="files flex">
@@ -304,6 +304,51 @@ const [webContainer, setWebContainer] = useState(null)
                                     </button>
                                 ))
                             }
+                        </div>
+                        
+                        <div className="actions flex gap-2">
+                          {/* to run the files on the created server */}
+                            <button
+                                onClick={async () => {
+                                     await webContainer.mount(fileTree)
+
+
+                                    const installProcess = await webContainer.spawn("npm", [ "install" ])
+
+
+
+                                    installProcess.output.pipeTo(new WritableStream({
+                                        write(chunk) {
+                                            console.log(chunk)
+                                        }
+                                    }))
+
+                                    // if (runProcess) {
+                                    //     runProcess.kill()
+                                    // }
+
+                                     const runProcess = await webContainer.spawn("npm", [ "start" ]);
+
+                                    runProcess.output.pipeTo(new WritableStream({
+                                        write(chunk) {
+                                            console.log(chunk)
+                                        }
+                                    }))
+
+                                    // setRunProcess(tempRunProcess)
+
+                                    // webContainer.on('server-ready', (port, url) => {
+                                    //     console.log(port, url)
+                                    //     setIframeUrl(url)
+                                    // })
+
+                                }}
+                                className='p-2 px-4 bg-slate-300 text-white'
+                            >
+                                run
+                            </button>
+
+
                         </div>
                </div>
             
@@ -345,7 +390,7 @@ const [webContainer, setWebContainer] = useState(null)
 
 
               </div>
-              )}
+            
 
             </section>
 
