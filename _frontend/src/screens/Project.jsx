@@ -37,16 +37,7 @@ const Project = () => {
   const {user} = useContext(UserContext)
   const messageBox = React.createRef()
   const [messages, setMessages] = useState([])
-  const [fileTree, setFileTree] = useState({
-    "app.js":{
-      content: `const express = require('express);`
-    },
-    "package.json":{
-      content: `{
-          "name: "temp-server,
-          }`
-    }
-  })
+  const [fileTree, setFileTree] = useState({})
 
   const [currentFile, setCurrentFile] = useState(null)
   const [openFiles, setOpenFiles] = useState([])  //to open multiple files 
@@ -68,13 +59,36 @@ const Project = () => {
     }
     console.log(location.state);
 
+     function WriteAiMessage(message) {
+
+        const messageObject = JSON.parse(message)
+
+        return (
+            <div
+                className='overflow-auto bg-slate-950 text-white rounded-sm p-2'
+            >
+                <Markdown
+                    children={messageObject.text}
+                    options={{
+                        overrides: {
+                            code: SyntaxHighlightedCode,
+                        },
+                    }}
+                />
+            </div>)
+    }
+
   useEffect(() => {
     //  console.log("Initializing socket with projectId:", project._id);
     initializeSocket(project._id)
 
     receiveMessage('project-message', data=>{
       
-        // console.log(data);
+        const message = JSON.parse(data.message)
+        // console.log(message);
+        if(message.fileTree){
+          setFileTree(message.fileTree)
+        }
         //   appendIncomingMessage(data)
           setMessages(prevMessages=>[...prevMessages, data])
     })
@@ -158,24 +172,7 @@ const Project = () => {
         messageBox.current.scrollTop = messageBox.current.scrollHeight
     }
 
- function WriteAiMessage(message) {
 
-        const messageObject = JSON.parse(message)
-
-        return (
-            <div
-                className='overflow-auto bg-slate-950 text-white rounded-sm p-2'
-            >
-                <Markdown
-                    children={messageObject.text}
-                    options={{
-                        overrides: {
-                            code: SyntaxHighlightedCode,
-                        },
-                    }}
-                />
-            </div>)
-    }
 
 
   return (
@@ -278,34 +275,59 @@ const Project = () => {
               </div>
               {currentFile && (
               <div className="code-editor flex flex-col flex-grow h-full ">
-               <div className="top flex ">
-                {
-                  openFiles.map((file, index) =>(
-                    <button onClick={() => setCurrentFile(file)}
-                    className={`open-file cursor-pointer p-2 px-4 flex items-center w-fit gap-2 bg-slate-300 ${currentFile === file ? 'bg-slate-400' : ''}`}>
-                      <p className='font-semibold text-lg'>{file}</p>
-                    </button>
-                  ))
-                }
+               <div className="top flex justify-between w-full">
+               <div className="files flex">
+                            {
+                                openFiles.map((file, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => setCurrentFile(file)}
+                                        className={`open-file cursor-pointer p-2 px-4 flex items-center w-fit gap-2 bg-slate-300 ${currentFile === file ? 'bg-slate-400' : ''}`}>
+                                        <p
+                                            className='font-semibold text-lg'
+                                        >{file}</p>
+                                    </button>
+                                ))
+                            }
+                        </div>
                </div>
+            
                <div className="bottom flex flex-grow max-w-full shrink overflow-auto">
-                {
-                  fileTree[currentFile] &&(
-                    <textarea
-                    value={fileTree[currentFile].content}
-                    onChange={(e) =>{
-                      setFileTree({
-                        ...fileTree,
-                        [currentFile]:{
-                          content: e.target.value
+                        {
+                            fileTree[ currentFile ] && (
+                                <div className="code-editor-area h-full overflow-auto flex-grow bg-slate-50">
+                                    <pre
+                                        className="hljs h-full">
+                                        <code
+                                            className="hljs h-full outline-none"
+                                            contentEditable
+                                            suppressContentEditableWarning
+                                            onBlur={(e) => {
+                                                const updatedContent = e.target.innerText;
+                                                const ft = {
+                                                    ...fileTree,
+                                                    [ currentFile ]: {
+                                                        file: {
+                                                            contents: updatedContent
+                                                        }
+                                                    }
+                                                }
+                                                setFileTree(ft)
+                                                saveFileTree(ft)
+                                            }}
+                                            dangerouslySetInnerHTML={{ __html: hljs.highlight('javascript', fileTree[ currentFile ].file.contents).value }}
+                                            style={{
+                                                whiteSpace: 'pre-wrap',
+                                                paddingBottom: '25rem',
+                                                counterSet: 'line-numbering',
+                                            }}
+                                        />
+                                    </pre>
+                                </div>
+                            )
                         }
-                      })
-                    }}
-                    className='w-full h-full p-4 bg-slate-50 outline-none border-none'
-                  ></textarea>
-                  )
-                }
-               </div>
+                    </div>
+
 
               </div>
               )}
