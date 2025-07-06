@@ -45,6 +45,7 @@ const Project = () => {
  const [users, setUsers] = useState([])
 const [webContainer, setWebContainer] = useState(null)
 const [iframeUrl, setIframeUrl] = useState(null)
+const [runProcess, setRunProcess] = useState(null)
 
     const handleUserClick = (id) => {
         setSelectedUserId(prevSelectedUserId => {
@@ -323,19 +324,19 @@ const [iframeUrl, setIframeUrl] = useState(null)
                                         }
                                     }))
 
-                                    // if (runProcess) {
-                                    //     runProcess.kill()
-                                    // }
+                                    if (runProcess) {
+                                        runProcess.kill()
+                                    }
 
-                                     const runProcess = await webContainer.spawn("npm", [ "start" ]);
+                                     let  tempRunProcess = await webContainer.spawn("npm", [ "start" ]);
 
-                                    runProcess.output.pipeTo(new WritableStream({
+                                    tempRunProcess.output.pipeTo(new WritableStream({
                                         write(chunk) {
                                             console.log(chunk)
                                         }
                                     }))
 
-                                    // setRunProcess(tempRunProcess)
+                                    setRunProcess(tempRunProcess)
 
                                     webContainer.on('server-ready', (port, url) => {
                                         console.log(port, url)
@@ -392,8 +393,15 @@ const [iframeUrl, setIframeUrl] = useState(null)
               </div>
             
                  {iframeUrl && webContainer &&
-                 <iframe src={iframeUrl} className='w-1/2 h-full'></iframe>
-                  }       
+                    (<div className="flex min-w-96 flex-col h-full">
+                        <div className="address-bar">
+                            <input type="text"
+                                onChange={(e) => setIframeUrl(e.target.value)}
+                                value={iframeUrl} className="w-full p-2 px-4 bg-slate-200" />
+                        </div>
+                        <iframe src={iframeUrl} className="w-full h-full"></iframe>
+                    </div>)
+                }     
             </section>
 
       {/* Modal for adding collaborators */}
