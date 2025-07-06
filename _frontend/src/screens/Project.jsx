@@ -5,6 +5,7 @@ import { initializeSocket, receiveMessage, sendMessage } from '../config/socket'
 import { UserContext } from '../context/user.context.jsx'
 import Markdown from 'markdown-to-jsx'
 import hljs from 'highlight.js'
+import { getWebContainer } from '../config/webContainer.js'
 
 
 window.hljs = hljs;
@@ -42,6 +43,8 @@ const Project = () => {
   const [currentFile, setCurrentFile] = useState(null)
   const [openFiles, setOpenFiles] = useState([])  //to open multiple files 
  const [users, setUsers] = useState([])
+const [webContainer, setWebContainer] = useState(null)
+
 
     const handleUserClick = (id) => {
         setSelectedUserId(prevSelectedUserId => {
@@ -82,10 +85,22 @@ const Project = () => {
     //  console.log("Initializing socket with projectId:", project._id);
     initializeSocket(project._id)
 
+
+    if(!webContainer){
+      getWebContainer().then(container => {
+        setWebContainer(container)
+        console.log("container started")
+      })
+    }
+
     receiveMessage('project-message', data=>{
       
         const message = JSON.parse(data.message)
-        // console.log(message);
+
+         console.log(message);
+
+         webContainer?.mount(message.fileTree)//mounts filetree into the container
+
         if(message.fileTree){
           setFileTree(message.fileTree)
         }
